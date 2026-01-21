@@ -21,7 +21,7 @@ const api = axios.create({
 });
 
 
-Replace https://localhost:5282/api with the URL your backend is running on.
+Replace your backend url https://localhost:7012/api/staff with the URL your backend is running on.
 
 ## 3️⃣ Start the frontend
 
