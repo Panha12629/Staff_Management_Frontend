@@ -1,29 +1,39 @@
-import * as XLSX from "xlsx";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+import React from "react";
+import { exportExcel, exportPdf } from "../services/exportService";
 
-function ExportButtons({ staffs }) {
-  const exportExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(staffs);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Staffs");
-    XLSX.writeFile(wb, "staffs.xlsx");
-  };
-
-  const exportPDF = () => {
-    const doc = new jsPDF();
-    const tableColumn = ["ID", "Staff ID", "Full Name", "Birthday", "Gender"];
-    const tableRows = staffs.map((s) => [ s.id, s.staffId, s.fullName,  new Date(s.birthday).toLocaleDateString(),  s.gender === 1 ? "Male" : "Female", ]);
-    doc.autoTable({ head: [tableColumn], body: tableRows });
-    doc.save("staffs.pdf");
+function ExportButtons() {
+  const handleExport = async (type) => {
+    try {
+      let response;
+      if (type === "excel") {
+        response = await exportExcel();
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "staffs.xlsx");
+        document.body.appendChild(link);
+        link.click();
+      } else if (type === "pdf") {
+        response = await exportPdf();
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "staffs.pdf");
+        document.body.appendChild(link);
+        link.click();
+      }
+    } catch (error) {
+      console.error("Export failed:", error);
+      alert("Failed to export file. Try again.");
+    }
   };
 
   return (
     <div className="d-flex justify-content-end mt-2 gap-2">
-      <button onClick={exportExcel} className="btn btn-success">
+      <button onClick={() => handleExport("excel")} className="btn btn-success">
         Export Excel
       </button>
-      <button onClick={exportPDF} className="btn btn-primary">
+      <button onClick={() => handleExport("pdf")} className="btn btn-primary">
         Export PDF
       </button>
     </div>
